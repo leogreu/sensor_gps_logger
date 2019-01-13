@@ -10,7 +10,7 @@ class Logger {
   Logger._internal();
 
   static const String _csvHeader = "timestamp,x,y,z,latitude,longitude,accuracy,traveled_distance\n";
-  List entries = [];
+  List _entries = [];
 
   double _latitude = 0.0;
   double _longitude = 0.0;
@@ -40,11 +40,15 @@ class Logger {
   }
 
   addEntry() {
-    entries.add("${DateTime.now().toString()},$_x,$_y,$_z,$_latitude,$_longitude,$_accuracy,$_traveledDistance");
+    _entries.add("${DateTime.now().toString()},$_x,$_y,$_z,$_latitude,$_longitude,$_accuracy,$_traveledDistance");
+  }
+
+  clearEntries() {
+    _entries.clear();
   }
 
   Future<bool> shareLog([String notes = ""]) async {
-    String csvContent = entries.join("\n");
+    String csvContent = _entries.join("\n");
     
     Uri uri = Uri.parse("https://imidist.uber.space/logs/saveLog/");
     http.MultipartRequest request = new http.MultipartRequest("POST", uri);
@@ -54,7 +58,7 @@ class Logger {
     try {
       return await request.send().then((response) {
         if (response.statusCode == 200) {
-          entries.clear();
+          clearEntries();
           return true;
         } else {
           return false;

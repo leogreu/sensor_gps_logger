@@ -167,8 +167,9 @@ class _MyHomePageState extends State<MyHomePage> {
             new FlatButton(
               child: new Text("Cancel"),
               onPressed: () {
-                Navigator.of(context).pop();
+                Logger().clearEntries();
                 motionStreamSubscription.resume();
+                Navigator.of(context).pop();
               },
             ),
             new FlatButton(
