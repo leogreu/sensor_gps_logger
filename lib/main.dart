@@ -39,7 +39,7 @@ class _MyHomePageState extends State<MyHomePage> {
   double y = 0.0;
   double z = 0.0;
 
-  StreamSubscription<double> accuracyStreamSubscription;
+  StreamSubscription<AccuracyEvent> accuracyStreamSubscription;
   StreamSubscription<double> traveledDistanceStreamSubscription;
   StreamSubscription<MotionEvent> motionStreamSubscription;
 
@@ -76,10 +76,11 @@ class _MyHomePageState extends State<MyHomePage> {
 
       toggleLogging();
 
-      accuracyStreamSubscription = Location().getAccuracyStream().listen((double accuracy) {
+      accuracyStreamSubscription = Location().getAccuracyStream().listen((AccuracyEvent accuracyEvent) {
         setState(() {
-          this.accuracy = accuracy;
-          Logger().setAccuracy(accuracy);
+          this.accuracy = accuracyEvent.accuracy;
+          Logger().setAccuracy(accuracyEvent.accuracy);
+          Logger().setLatitudeLongitude(accuracyEvent.latitude, accuracyEvent.longitude);
         });
       });
 

@@ -15,7 +15,7 @@ class Location {
   double _lastLatitude;
   double _lastLongitude;
 
-  StreamController<double> _accuracyStreamController;
+  StreamController<AccuracyEvent> _accuracyStreamController;
   StreamController<double> _traveledDistanceStreamController;
 
   void _initiatePositionStream() {
@@ -23,7 +23,7 @@ class Location {
     final Stream<Position> positionStream = Geolocator().getPositionStream(locationOptions);
     _positionStreamSubscription = positionStream.listen((Position position) {
       if (_accuracyStreamController != null && _accuracyStreamController.hasListener) {
-        _accuracyStreamController.sink.add(position.accuracy);
+        _accuracyStreamController.sink.add(AccuracyEvent(position.accuracy, position.latitude, position.longitude));
       } else if (_accuracyStreamController != null) {
         _accuracyStreamController.close();
         _accuracyStreamController = null;
@@ -56,7 +56,7 @@ class Location {
     _traveledDistanceStreamController.sink.add(_traveledDistance);
   }
 
-  Stream<double> getAccuracyStream() {
+  Stream<AccuracyEvent> getAccuracyStream() {
     if (_positionStreamSubscription == null) {
       _initiatePositionStream();
     }
@@ -79,4 +79,12 @@ class Location {
 
     return _traveledDistanceStreamController.stream;
   }
+}
+
+class AccuracyEvent {
+  final double accuracy;
+  final double latitude;
+  final double longitude;
+
+  AccuracyEvent(this.accuracy, this.latitude, this.longitude);
 }

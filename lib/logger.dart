@@ -9,14 +9,21 @@ class Logger {
 
   Logger._internal();
 
-  static const String _csvHeader = "timestamp,x,y,z,traveled_distance,accuracy\n";
+  static const String _csvHeader = "timestamp,x,y,z,latitude,longitude,accuracy,traveled_distance\n";
   List entries = [];
 
+  double _latitude = 0.0;
+  double _longitude = 0.0;
   double _accuracy = 9999.0;
   double _traveledDistance = 0.0;
   double _x = 0.0;
   double _y = 0.0;
   double _z = 0.0;
+
+  setLatitudeLongitude(double latitude, double longitude) {
+    this._latitude = latitude;
+    this._longitude = longitude;
+  }
 
   setAccuracy(double accuracy) {
     this._accuracy = accuracy;
@@ -33,7 +40,7 @@ class Logger {
   }
 
   addEntry() {
-    entries.add("${DateTime.now().toString()},$_x,$_y,$_z,$_traveledDistance,$_accuracy");
+    entries.add("${DateTime.now().toString()},$_x,$_y,$_z,$_latitude,$_longitude,$_accuracy,$_traveledDistance");
   }
 
   Future<bool> shareLog([String notes = ""]) async {
