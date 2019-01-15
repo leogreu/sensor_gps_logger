@@ -79,11 +79,17 @@ Stream<AccelerometerEvent> _accelerometerEvents;
 Stream<GyroscopeEvent> _gyroscopeEvents;
 Stream<UserAccelerometerEvent> _userAccelerometerEvents;
 
+SampleRate _sampleRate;
+
+void setSensorsSampleRate(SampleRate sampleRate) {
+  _sampleRate = sampleRate;
+}
+
 /// A broadcast stream of events from the device accelerometer.
-Stream<AccelerometerEvent> getAccelerometerEvents([SensorSampleRate sensorSampleRate = SensorSampleRate.low]) {
+Stream<AccelerometerEvent> get accelerometerEvents {
   if (_accelerometerEvents == null) {
     _accelerometerEvents = _accelerometerEventChannel
-        .receiveBroadcastStream(Codec.encodeSensorEventInterval(sensorSampleRate))
+        .receiveBroadcastStream(Codec.encodeSensorSampleRate(_sampleRate))
         .map(
             (dynamic event) => _listToAccelerometerEvent(event.cast<double>()));
   }
@@ -91,20 +97,20 @@ Stream<AccelerometerEvent> getAccelerometerEvents([SensorSampleRate sensorSample
 }
 
 /// A broadcast stream of events from the device gyroscope.
-Stream<GyroscopeEvent> getGyroscopeEvents([SensorSampleRate sensorSampleRate = SensorSampleRate.low]) {
+Stream<GyroscopeEvent> get gyroscopeEvents {
   if (_gyroscopeEvents == null) {
     _gyroscopeEvents = _gyroscopeEventChannel
-        .receiveBroadcastStream(Codec.encodeSensorEventInterval(sensorSampleRate))
+        .receiveBroadcastStream(Codec.encodeSensorSampleRate(_sampleRate))
         .map((dynamic event) => _listToGyroscopeEvent(event.cast<double>()));
   }
   return _gyroscopeEvents;
 }
 
 /// Events from the device accelerometer with gravity removed.
-Stream<UserAccelerometerEvent> getUserAccelerometerEvents([SensorSampleRate sensorSampleRate = SensorSampleRate.low]) {
+Stream<UserAccelerometerEvent> get userAccelerometerEvents {
   if (_userAccelerometerEvents == null) {
     _userAccelerometerEvents = _userAccelerometerEventChannel
-        .receiveBroadcastStream(Codec.encodeSensorEventInterval(sensorSampleRate))
+        .receiveBroadcastStream(Codec.encodeSensorSampleRate(_sampleRate))
         .map((dynamic event) =>
             _listToUserAccelerometerEvent(event.cast<double>()));
   }

@@ -1,8 +1,9 @@
 part of sensors;
 
-enum SensorSampleRate {
+enum SampleRate {
   /// Android: Maps to the sample rate of SensorManager.SENSOR_DELAY_NORMAL (15 events per second).
   /// iOS: Maps to a update interval of 1/15 (15 events per second).
+  /// Constitutes the default value.
   low,
 
   /// Android: Maps to the sample rate of SensorManager.SENSOR_DELAY_GAME (50 events per second).
