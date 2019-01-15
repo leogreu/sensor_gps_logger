@@ -70,7 +70,7 @@ class SnakeState extends State<Snake> {
   @override
   void initState() {
     super.initState();
-    accelerometerEvents.listen((AccelerometerEvent event) {
+    getAccelerometerEvents(SensorEventInterval.medium).listen((AccelerometerEvent event) {
       setState(() {
         acceleration = event;
       });

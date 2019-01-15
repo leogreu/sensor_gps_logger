@@ -50,7 +50,7 @@ public class SensorsPlugin implements EventChannel.StreamHandler {
   @Override
   public void onListen(Object arguments, EventChannel.EventSink events) {
     sensorEventListener = createSensorEventListener(events);
-    sensorManager.registerListener(sensorEventListener, sensor, sensorManager.SENSOR_DELAY_GAME);
+    sensorManager.registerListener(sensorEventListener, sensor, parseIntervalArgument(arguments));
   }
 
   @Override
@@ -72,5 +72,16 @@ public class SensorsPlugin implements EventChannel.StreamHandler {
         events.success(sensorValues);
       }
     };
+  }
+
+  private int parseIntervalArgument(Object arguments) {
+    switch(arguments.toString()) {
+      case "medium":
+        return sensorManager.SENSOR_DELAY_GAME;
+      case "high":
+        return sensorManager.SENSOR_DELAY_FASTEST;
+      default:
+        return sensorManager.SENSOR_DELAY_NORMAL;
+    }
   }
 }

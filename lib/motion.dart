@@ -20,7 +20,7 @@ class Motion {
   int _eventsPerSecond = 0;
 
   void _initiateMotionStream() {
-    _accelerometerStreamSubscription = accelerometerEvents.listen((AccelerometerEvent accelerometerEvent) {
+    _accelerometerStreamSubscription = getAccelerometerEvents(SensorEventInterval.medium).listen((AccelerometerEvent accelerometerEvent) {
       _lastX = accelerometerEvent.x;
       _lastY = accelerometerEvent.y;
       _lastZ = accelerometerEvent.z;

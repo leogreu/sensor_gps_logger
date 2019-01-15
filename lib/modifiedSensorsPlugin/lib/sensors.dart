@@ -58,6 +58,18 @@ class UserAccelerometerEvent {
   String toString() => '[UserAccelerometerEvent (x: $x, y: $y, z: $z)]';
 }
 
+enum SensorEventInterval {
+  low,
+  medium,
+  high
+}
+
+class Codec {
+  static String encodeSensorEventInterval(SensorEventInterval sensorEventInterval) {
+    return sensorEventInterval.toString().split('.').last;
+  }
+}
+
 AccelerometerEvent _listToAccelerometerEvent(List<double> list) {
   return new AccelerometerEvent(list[0], list[1], list[2]);
 }
@@ -75,10 +87,10 @@ Stream<GyroscopeEvent> _gyroscopeEvents;
 Stream<UserAccelerometerEvent> _userAccelerometerEvents;
 
 /// A broadcast stream of events from the device accelerometer.
-Stream<AccelerometerEvent> get accelerometerEvents {
+Stream<AccelerometerEvent> getAccelerometerEvents([SensorEventInterval sensorEventInterval = SensorEventInterval.low]) {
   if (_accelerometerEvents == null) {
     _accelerometerEvents = _accelerometerEventChannel
-        .receiveBroadcastStream()
+        .receiveBroadcastStream(Codec.encodeSensorEventInterval(sensorEventInterval))
         .map(
             (dynamic event) => _listToAccelerometerEvent(event.cast<double>()));
   }
@@ -86,20 +98,20 @@ Stream<AccelerometerEvent> get accelerometerEvents {
 }
 
 /// A broadcast stream of events from the device gyroscope.
-Stream<GyroscopeEvent> get gyroscopeEvents {
+Stream<GyroscopeEvent> getGyroscopeEvents([SensorEventInterval sensorEventInterval = SensorEventInterval.low]) {
   if (_gyroscopeEvents == null) {
     _gyroscopeEvents = _gyroscopeEventChannel
-        .receiveBroadcastStream()
+        .receiveBroadcastStream(Codec.encodeSensorEventInterval(sensorEventInterval))
         .map((dynamic event) => _listToGyroscopeEvent(event.cast<double>()));
   }
   return _gyroscopeEvents;
 }
 
 /// Events from the device accelerometer with gravity removed.
-Stream<UserAccelerometerEvent> get userAccelerometerEvents {
+Stream<UserAccelerometerEvent> getUserAccelerometerEvents([SensorEventInterval sensorEventInterval = SensorEventInterval.low]) {
   if (_userAccelerometerEvents == null) {
     _userAccelerometerEvents = _userAccelerometerEventChannel
-        .receiveBroadcastStream()
+        .receiveBroadcastStream(Codec.encodeSensorEventInterval(sensorEventInterval))
         .map((dynamic event) =>
             _listToUserAccelerometerEvent(event.cast<double>()));
   }

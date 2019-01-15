@@ -15,3 +15,5 @@
 
 @interface FLTGyroscopeStreamHandler : NSObject<FlutterStreamHandler>
 @end
+
+float parseIntervalArgument(NSString * arguments);

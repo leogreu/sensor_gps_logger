@@ -32,7 +32,6 @@
 @end
 
 const double GRAVITY = 9.8;
-const double INTERVAL = .02;
 CMMotionManager* _motionManager;
 
 void _initMotionManager() {
@@ -53,7 +52,7 @@ static void sendTriplet(Float64 x, Float64 y, Float64 z, FlutterEventSink sink) 
 
 - (FlutterError*)onListenWithArguments:(id)arguments eventSink:(FlutterEventSink)eventSink {
   _initMotionManager();
-  _motionManager.accelerometerUpdateInterval = INTERVAL;
+  _motionManager.accelerometerUpdateInterval = parseIntervalArgument((NSString *) arguments);
   [_motionManager
       startAccelerometerUpdatesToQueue:[[NSOperationQueue alloc] init]
                            withHandler:^(CMAccelerometerData* accelerometerData, NSError* error) {
@@ -77,7 +76,7 @@ static void sendTriplet(Float64 x, Float64 y, Float64 z, FlutterEventSink sink) 
 
 - (FlutterError*)onListenWithArguments:(id)arguments eventSink:(FlutterEventSink)eventSink {
   _initMotionManager();
-  _motionManager.deviceMotionUpdateInterval = INTERVAL;
+  _motionManager.deviceMotionUpdateInterval = parseIntervalArgument((NSString *) arguments);
   [_motionManager
       startDeviceMotionUpdatesToQueue:[[NSOperationQueue alloc] init]
                           withHandler:^(CMDeviceMotion* data, NSError* error) {
@@ -100,7 +99,7 @@ static void sendTriplet(Float64 x, Float64 y, Float64 z, FlutterEventSink sink) 
 
 - (FlutterError*)onListenWithArguments:(id)arguments eventSink:(FlutterEventSink)eventSink {
   _initMotionManager();
-  _motionManager.gyroUpdateInterval = INTERVAL;
+  _motionManager.gyroUpdateInterval = parseIntervalArgument((NSString *) arguments);
   [_motionManager
       startGyroUpdatesToQueue:[[NSOperationQueue alloc] init]
                   withHandler:^(CMGyroData* gyroData, NSError* error) {
@@ -116,3 +115,13 @@ static void sendTriplet(Float64 x, Float64 y, Float64 z, FlutterEventSink sink) 
 }
 
 @end
+
+float parseIntervalArgument(NSString *arguments) {
+    if ([arguments isEqualToString:@"medium"]) {
+        return .02;
+    } else if ([arguments isEqualToString:@"high"]) {
+        return .01;
+    } else {
+        return .1;
+    }
+}

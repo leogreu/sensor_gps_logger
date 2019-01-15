@@ -13,11 +13,17 @@ To use this plugin, add `sensors` as a [dependency in your pubspec.yaml file](ht
 ``` dart
 import 'package:sensors/sensors.dart';
 
-accelerometerEvents.listen((AccelerometerEvent event) {
+getAccelerometerEvents().listen((AccelerometerEvent event) {
  // Do something with the event.
 });
 
-gyroscopeEvents.listen((GyroscopeEvent event) {
+getGyroscopeEvents().listen((GyroscopeEvent event) {
+ // Do something with the event.
+});
+
+// Optionally, specify the sample rate by using
+getAccelerometerEvents(SensorEventInterval.medium).listen((AccelerometerEvent event) {
+ // Sample rate available in .low (default), .medium, and .high. Analogously for gyroscope events.
  // Do something with the event.
 });
 ```

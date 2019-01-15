@@ -122,18 +122,18 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
     _streamSubscriptions
-        .add(accelerometerEvents.listen((AccelerometerEvent event) {
+        .add(getAccelerometerEvents().listen((AccelerometerEvent event) {
       setState(() {
         _accelerometerValues = <double>[event.x, event.y, event.z];
       });
     }));
-    _streamSubscriptions.add(gyroscopeEvents.listen((GyroscopeEvent event) {
+    _streamSubscriptions.add(getGyroscopeEvents().listen((GyroscopeEvent event) {
       setState(() {
         _gyroscopeValues = <double>[event.x, event.y, event.z];
       });
     }));
     _streamSubscriptions
-        .add(userAccelerometerEvents.listen((UserAccelerometerEvent event) {
+        .add(getUserAccelerometerEvents().listen((UserAccelerometerEvent event) {
       setState(() {
         _userAccelerometerValues = <double>[event.x, event.y, event.z];
       });
