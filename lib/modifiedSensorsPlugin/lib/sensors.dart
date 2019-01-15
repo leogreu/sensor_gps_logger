@@ -1,5 +1,10 @@
+library sensors;
+
 import 'dart:async';
 import 'package:flutter/services.dart';
+
+part 'models/sample_rate_enum.dart';
+part 'utils/codec.dart';
 
 const EventChannel _accelerometerEventChannel =
     EventChannel('plugins.flutter.io/sensors/accelerometer');
@@ -58,18 +63,6 @@ class UserAccelerometerEvent {
   String toString() => '[UserAccelerometerEvent (x: $x, y: $y, z: $z)]';
 }
 
-enum SensorEventInterval {
-  low,
-  medium,
-  high
-}
-
-class Codec {
-  static String encodeSensorEventInterval(SensorEventInterval sensorEventInterval) {
-    return sensorEventInterval.toString().split('.').last;
-  }
-}
-
 AccelerometerEvent _listToAccelerometerEvent(List<double> list) {
   return new AccelerometerEvent(list[0], list[1], list[2]);
 }
@@ -87,10 +80,10 @@ Stream<GyroscopeEvent> _gyroscopeEvents;
 Stream<UserAccelerometerEvent> _userAccelerometerEvents;
 
 /// A broadcast stream of events from the device accelerometer.
-Stream<AccelerometerEvent> getAccelerometerEvents([SensorEventInterval sensorEventInterval = SensorEventInterval.low]) {
+Stream<AccelerometerEvent> getAccelerometerEvents([SensorSampleRate sensorSampleRate = SensorSampleRate.low]) {
   if (_accelerometerEvents == null) {
     _accelerometerEvents = _accelerometerEventChannel
-        .receiveBroadcastStream(Codec.encodeSensorEventInterval(sensorEventInterval))
+        .receiveBroadcastStream(Codec.encodeSensorEventInterval(sensorSampleRate))
         .map(
             (dynamic event) => _listToAccelerometerEvent(event.cast<double>()));
   }
@@ -98,20 +91,20 @@ Stream<AccelerometerEvent> getAccelerometerEvents([SensorEventInterval sensorEve
 }
 
 /// A broadcast stream of events from the device gyroscope.
-Stream<GyroscopeEvent> getGyroscopeEvents([SensorEventInterval sensorEventInterval = SensorEventInterval.low]) {
+Stream<GyroscopeEvent> getGyroscopeEvents([SensorSampleRate sensorSampleRate = SensorSampleRate.low]) {
   if (_gyroscopeEvents == null) {
     _gyroscopeEvents = _gyroscopeEventChannel
-        .receiveBroadcastStream(Codec.encodeSensorEventInterval(sensorEventInterval))
+        .receiveBroadcastStream(Codec.encodeSensorEventInterval(sensorSampleRate))
         .map((dynamic event) => _listToGyroscopeEvent(event.cast<double>()));
   }
   return _gyroscopeEvents;
 }
 
 /// Events from the device accelerometer with gravity removed.
-Stream<UserAccelerometerEvent> getUserAccelerometerEvents([SensorEventInterval sensorEventInterval = SensorEventInterval.low]) {
+Stream<UserAccelerometerEvent> getUserAccelerometerEvents([SensorSampleRate sensorSampleRate = SensorSampleRate.low]) {
   if (_userAccelerometerEvents == null) {
     _userAccelerometerEvents = _userAccelerometerEventChannel
-        .receiveBroadcastStream(Codec.encodeSensorEventInterval(sensorEventInterval))
+        .receiveBroadcastStream(Codec.encodeSensorEventInterval(sensorSampleRate))
         .map((dynamic event) =>
             _listToUserAccelerometerEvent(event.cast<double>()));
   }

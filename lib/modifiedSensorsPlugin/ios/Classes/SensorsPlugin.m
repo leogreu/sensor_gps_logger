@@ -52,7 +52,7 @@ static void sendTriplet(Float64 x, Float64 y, Float64 z, FlutterEventSink sink) 
 
 - (FlutterError*)onListenWithArguments:(id)arguments eventSink:(FlutterEventSink)eventSink {
   _initMotionManager();
-  _motionManager.accelerometerUpdateInterval = parseIntervalArgument((NSString *) arguments);
+  _motionManager.accelerometerUpdateInterval = _parseSampleRateArgument(arguments);
   [_motionManager
       startAccelerometerUpdatesToQueue:[[NSOperationQueue alloc] init]
                            withHandler:^(CMAccelerometerData* accelerometerData, NSError* error) {
@@ -76,7 +76,7 @@ static void sendTriplet(Float64 x, Float64 y, Float64 z, FlutterEventSink sink) 
 
 - (FlutterError*)onListenWithArguments:(id)arguments eventSink:(FlutterEventSink)eventSink {
   _initMotionManager();
-  _motionManager.deviceMotionUpdateInterval = parseIntervalArgument((NSString *) arguments);
+  _motionManager.deviceMotionUpdateInterval = _parseSampleRateArgument(arguments);
   [_motionManager
       startDeviceMotionUpdatesToQueue:[[NSOperationQueue alloc] init]
                           withHandler:^(CMDeviceMotion* data, NSError* error) {
@@ -99,7 +99,7 @@ static void sendTriplet(Float64 x, Float64 y, Float64 z, FlutterEventSink sink) 
 
 - (FlutterError*)onListenWithArguments:(id)arguments eventSink:(FlutterEventSink)eventSink {
   _initMotionManager();
-  _motionManager.gyroUpdateInterval = parseIntervalArgument((NSString *) arguments);
+  _motionManager.gyroUpdateInterval = _parseSampleRateArgument(arguments);
   [_motionManager
       startGyroUpdatesToQueue:[[NSOperationQueue alloc] init]
                   withHandler:^(CMGyroData* gyroData, NSError* error) {
@@ -116,12 +116,14 @@ static void sendTriplet(Float64 x, Float64 y, Float64 z, FlutterEventSink sink) 
 
 @end
 
-float parseIntervalArgument(NSString *arguments) {
-    if ([arguments isEqualToString:@"medium"]) {
-        return .02;
-    } else if ([arguments isEqualToString:@"high"]) {
-        return .01;
-    } else {
-        return .1;
-    }
+float _parseSampleRateArgument(id arguments) {
+  NSString *argument = (NSString *) arguments;
+
+  if ([arguments isEqualToString:@"medium"]) {
+      return (float) 1/50;
+  } else if ([arguments isEqualToString:@"high"]) {
+      return (float) 1/100;
+  } else {
+      return (float) 1/15;
+  }
 }
