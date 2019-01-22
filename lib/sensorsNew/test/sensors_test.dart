@@ -35,7 +35,7 @@ void main() {
       }
     });
 
-    setSensorsSampleRate(10);
+    setSensorsSampleRate(50);
     final AccelerometerEvent event = await accelerometerEvents.first;
     expect(event.x, 1.0);
     expect(event.y, 2.0);
