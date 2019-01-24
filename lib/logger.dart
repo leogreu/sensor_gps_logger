@@ -9,13 +9,14 @@ class Logger {
 
   Logger._internal();
 
-  static const String _csvHeader = "timestamp,x,y,z,latitude,longitude,accuracy,traveled_distance\n";
+  static const String _csvHeader = "timestamp,x,y,z,latitude,longitude,accuracy,traveled_distance,step_count\n";
   List _entries = [];
 
   double _latitude = 0.0;
   double _longitude = 0.0;
   double _accuracy = 9999.0;
   double _traveledDistance = 0.0;
+  int _stepCount = 0;
   double _x = 0.0;
   double _y = 0.0;
   double _z = 0.0;
@@ -33,6 +34,10 @@ class Logger {
     this._traveledDistance = traveledDistance;
   }
 
+  setStepCount(int stepCount) {
+    this._stepCount = stepCount;
+  }
+
   setMotionData(double x, double y, double z) {
     this._x = x;
     this._y = y;
@@ -40,10 +45,18 @@ class Logger {
   }
 
   addEntry() {
-    _entries.add("${DateTime.now().toString()},$_x,$_y,$_z,$_latitude,$_longitude,$_accuracy,$_traveledDistance");
+    _entries.add("${DateTime.now().toString()},$_x,$_y,$_z,$_latitude,$_longitude,$_accuracy,$_traveledDistance,$_stepCount");
   }
 
   clearEntries() {
+    _latitude = 0.0;
+    _longitude = 0.0;
+    _accuracy = 9999.0;
+    _traveledDistance = 0.0;
+    _stepCount = 0;
+    _x = 0.0;
+    _y = 0.0;
+    _z = 0.0;
     _entries.clear();
   }
 

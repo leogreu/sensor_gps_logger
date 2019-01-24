@@ -75,6 +75,7 @@ class _MyHomePageState extends State<MyHomePage> {
         });
         stepCounterStreamSubscription = Pedometer().stepCountStream.listen((int stepCount){
           this.stepCount = stepCount;
+          Logger().setStepCount(stepCount);
         });
       }
     });
