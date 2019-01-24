@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
+import 'dart:io' show Platform;
 
 import 'package:sensor_gps_logger/location.dart';
 import 'package:sensor_gps_logger/motion.dart';
@@ -36,6 +37,7 @@ class _MyHomePageState extends State<MyHomePage> {
   double accuracy = 9999.0;
   double traveledDistance = 0.0;
 
+  int stepCountStart_Android = 0;
   int stepCount = 0;
 
   double x = 0.0;
@@ -68,13 +70,17 @@ class _MyHomePageState extends State<MyHomePage> {
         buttonColor = Colors.red;
         isLogging = true;
         traveledDistance = 0.0;
+        stepCountStart_Android = 0;
         stepCount = 0;
         traveledDistanceStreamSubscription = Location().getTraveledDistanceStream().listen((double traveledDistance) {
           this.traveledDistance = traveledDistance;
           Logger().setTraveledDistance(traveledDistance);    
         });
         stepCounterStreamSubscription = Pedometer().stepCountStream.listen((int stepCount){
-          this.stepCount = stepCount;
+          if (stepCountStart_Android == 0 && Platform.isAndroid) {
+            stepCountStart_Android = stepCount;
+          }
+          this.stepCount = stepCount - stepCountStart_Android;
           Logger().setStepCount(stepCount);
         });
       }
