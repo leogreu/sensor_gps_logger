@@ -28,6 +28,8 @@
 	<string>This app needs access to location when in the background.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>This app needs access to location when open.</string>
+	<key>NSMotionUsageDescription</key>
+	<string>This app needs to read the step count.</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>location</string>

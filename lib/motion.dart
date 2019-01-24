@@ -20,7 +20,7 @@ class Motion {
   int _eventsPerSecond = 0;
 
   void _initiateMotionStream() {
-    //setSensorsSampleRate(30);
+    setSensorsSampleRate(10);
     _accelerometerStreamSubscription = accelerometerEvents.listen((AccelerometerEvent accelerometerEvent) {
       _lastX = accelerometerEvent.x;
       _lastY = accelerometerEvent.y;
@@ -33,7 +33,7 @@ class Motion {
       _eventsPerSecond = 0;
     });
 
-    Timer.periodic(Duration(milliseconds: 50), (Timer timer) {
+    Timer.periodic(Duration(milliseconds: 100), (Timer timer) {
       if (_accelerometerStreamController != null && _accelerometerStreamController.hasListener) {
         _accelerometerStreamController.sink.add(MotionEvent(_lastX, _lastY, _lastZ));
       } else if (_accelerometerStreamController != null) {

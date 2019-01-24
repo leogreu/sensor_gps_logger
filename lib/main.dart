@@ -4,6 +4,7 @@ import 'dart:async';
 import 'package:sensor_gps_logger/location.dart';
 import 'package:sensor_gps_logger/motion.dart';
 import 'package:sensor_gps_logger/logger.dart';
+import 'package:pedometer/pedometer.dart';
 
 void main() => runApp(MyApp());
 
@@ -35,6 +36,8 @@ class _MyHomePageState extends State<MyHomePage> {
   double accuracy = 9999.0;
   double traveledDistance = 0.0;
 
+  int stepCount = 0;
+
   double x = 0.0;
   double y = 0.0;
   double z = 0.0;
@@ -42,6 +45,7 @@ class _MyHomePageState extends State<MyHomePage> {
   StreamSubscription<AccuracyEvent> accuracyStreamSubscription;
   StreamSubscription<double> traveledDistanceStreamSubscription;
   StreamSubscription<MotionEvent> motionStreamSubscription;
+  StreamSubscription<int> stepCounterStreamSubscription;
 
   toggleLogging() {
     setState(() {
@@ -53,6 +57,8 @@ class _MyHomePageState extends State<MyHomePage> {
         if (traveledDistanceStreamSubscription != null) {
           traveledDistanceStreamSubscription.cancel();
           traveledDistanceStreamSubscription = null;
+          stepCounterStreamSubscription.cancel();
+          stepCounterStreamSubscription = null;
           motionStreamSubscription.pause();
           askToSendLog();
         }
@@ -62,9 +68,13 @@ class _MyHomePageState extends State<MyHomePage> {
         buttonColor = Colors.red;
         isLogging = true;
         traveledDistance = 0.0;
+        stepCount = 0;
         traveledDistanceStreamSubscription = Location().getTraveledDistanceStream().listen((double traveledDistance) {
           this.traveledDistance = traveledDistance;
           Logger().setTraveledDistance(traveledDistance);    
+        });
+        stepCounterStreamSubscription = Pedometer().stepCountStream.listen((int stepCount){
+          this.stepCount = stepCount;
         });
       }
     });
@@ -134,6 +144,21 @@ class _MyHomePageState extends State<MyHomePage> {
                   Text("X: ${x.toStringAsFixed(4)}"),
                   Text("Y: ${y.toStringAsFixed(4)}"),
                   Text("Z: ${z.toStringAsFixed(4)}")
+                ],
+              )
+            )
+          ),
+          Card(
+            margin: EdgeInsets.only(top: 10.0, left: 10.0, right: 10.0),
+            child: Container(
+              margin: EdgeInsets.all(15.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  Text("Step Count", style: TextStyle(fontSize: 18)),
+                  Text("(Native via API)", style: TextStyle(fontSize: 12)),
+                  Divider(height: 20.0),
+                  Text("Steps: $stepCount"),
                 ],
               )
             )
@@ -226,6 +251,11 @@ class _MyHomePageState extends State<MyHomePage> {
       if (motionStreamSubscription != null) {
         motionStreamSubscription.cancel();
         motionStreamSubscription = null;
+      }
+
+      if (stepCounterStreamSubscription != null) {
+        stepCounterStreamSubscription.cancel();
+        stepCounterStreamSubscription = null;
       }
 
       super.dispose();
