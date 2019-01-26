@@ -37,7 +37,8 @@ class _MyHomePageState extends State<MyHomePage> {
   double accuracy = 9999.0;
   double traveledDistance = 0.0;
 
-  int stepCountStart_Android = 0;
+  int stepCountStartAndroid = 0;
+  bool stepCountStartSetAndroid = false;
   int stepCount = 0;
 
   double x = 0.0;
@@ -70,17 +71,21 @@ class _MyHomePageState extends State<MyHomePage> {
         buttonColor = Colors.red;
         isLogging = true;
         traveledDistance = 0.0;
-        stepCountStart_Android = 0;
+        stepCountStartAndroid = 0;
+        stepCountStartSetAndroid = false;
         stepCount = 0;
         traveledDistanceStreamSubscription = Location().getTraveledDistanceStream().listen((double traveledDistance) {
           this.traveledDistance = traveledDistance;
           Logger().setTraveledDistance(traveledDistance);    
         });
         stepCounterStreamSubscription = Pedometer().stepCountStream.listen((int stepCount){
-          if (stepCountStart_Android == 0 && Platform.isAndroid) {
-            stepCountStart_Android = stepCount;
+          print("Step count: $stepCount");
+          if (!stepCountStartSetAndroid && Platform.isAndroid) {
+            print("Android starting step count set to: $stepCount");
+            stepCountStartAndroid = stepCount;
+            stepCountStartSetAndroid = true;
           }
-          this.stepCount = stepCount - stepCountStart_Android;
+          this.stepCount = stepCount - stepCountStartAndroid;
           Logger().setStepCount(stepCount);
         });
       }
