@@ -12,6 +12,8 @@ class Logger {
   static const String _csvHeader = "timestamp,x,y,z,latitude,longitude,accuracy,traveled_distance,step_count\n";
   List _entries = [];
 
+  String platform = "";
+
   double _latitude = 0.0;
   double _longitude = 0.0;
   double _accuracy = 9999.0;
@@ -20,6 +22,10 @@ class Logger {
   double _x = 0.0;
   double _y = 0.0;
   double _z = 0.0;
+
+  setPlatform(String platform) {
+    this.platform = platform;
+  }
 
   setLatitudeLongitude(double latitude, double longitude) {
     this._latitude = latitude;
@@ -65,7 +71,11 @@ class Logger {
     
     Uri uri = Uri.parse("https://imidist.uber.space/logs/saveLog/");
     http.MultipartRequest request = new http.MultipartRequest("POST", uri);
-    request.fields['notes'] = notes;
+    if (notes.isNotEmpty) {
+      request.fields['notes'] = platform + ", " + notes;
+    } else {
+      request.fields['notes'] = platform;
+    }
     request.files.add(new http.MultipartFile.fromString("csv", _csvHeader + csvContent));
 
     try {

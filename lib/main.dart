@@ -96,6 +96,8 @@ class _MyHomePageState extends State<MyHomePage> {
     void initState() {
       super.initState();
 
+      Logger().setPlatform(Platform.isAndroid ? "Android" : "iOS");
+
       toggleLogging();
 
       accuracyStreamSubscription = Location().getAccuracyStream().listen((AccuracyEvent accuracyEvent) {
