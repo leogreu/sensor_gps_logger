@@ -79,14 +79,12 @@ class _MyHomePageState extends State<MyHomePage> {
           Logger().setTraveledDistance(traveledDistance);    
         });
         stepCounterStreamSubscription = Pedometer().stepCountStream.listen((int stepCount){
-          print("Step count: $stepCount");
           if (!stepCountStartSetAndroid && Platform.isAndroid) {
-            print("Android starting step count set to: $stepCount");
             stepCountStartAndroid = stepCount;
             stepCountStartSetAndroid = true;
           }
           this.stepCount = stepCount - stepCountStartAndroid;
-          Logger().setStepCount(stepCount);
+          Logger().setStepCount(stepCount - stepCountStartAndroid);
         });
       }
     });
