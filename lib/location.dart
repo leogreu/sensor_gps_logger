@@ -74,8 +74,6 @@ class Location {
 
     _lastAltitudes.add(currentAltitude);
 
-    print("Current altitude: $currentAltitude, number altitudes: ${_lastAltitudes.length}");
-
     if (_lastAltitudes.length == _smoothingThreshold) {
       double _sumAltitudes = 0.0;
       double _sumDiffAltitudes = 0.0;
@@ -85,8 +83,7 @@ class Location {
       }
       _sumAltitudes += _lastAltitudes[_smoothingThreshold-1];
       _lastAltitudes.removeAt(0);
-      print("Difference altitudes: $_sumDiffAltitudes");
-      if (_sumDiffAltitudes >= _smoothingThreshold) {
+      if (_sumDiffAltitudes >= 1) {
         return;
       }
       currentAltitude = _sumAltitudes / _smoothingThreshold;
@@ -98,8 +95,6 @@ class Location {
     if (_lastAltitude == null) {
       return;
     }
-
-    print("Current avg. altitude: $currentAltitude, last avg. altitude: $_lastAltitude");
 
     double _relativeAltitude = currentAltitude - _lastAltitude;
     if (_relativeAltitude >= 0.1) {

@@ -146,7 +146,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   Text("(GPS)", style: TextStyle(fontSize: 12)),
                   Divider(height: 20.0),
                   Text("Accuracy: ${accuracy.toStringAsFixed(2)} m"),
-                  Text("Traveled Distance: ${traveledDistance.toStringAsFixed(2)} m"),
+                  Text("Traveled Distance: ${traveledDistance.toStringAsFixed(1)} m"),
                   Text("Rel. Altitude Gain: ${relativeAltitudeGain.toStringAsFixed(1)} m"),
                   Text("Rel. Altitude Loss: ${relativeAltitudeLoss.toStringAsFixed(1)} m")
                 ],
