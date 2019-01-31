@@ -9,7 +9,7 @@ class Logger {
 
   Logger._internal();
 
-  static const String _csvHeader = "timestamp,x,y,z,latitude,longitude,accuracy,traveled_distance,step_count\n";
+  static const String _csvHeader = "timestamp,x,y,z,latitude,longitude,altitude,accuracy,traveled_distance,rel_alt_gain,rel_alt_loss,step_count\n";
   List _entries = [];
 
   String platform = "";
@@ -17,6 +17,9 @@ class Logger {
   double _latitude = 0.0;
   double _longitude = 0.0;
   double _accuracy = 9999.0;
+  double _altitude = 0.0;
+  double _relativeAltitudeGain = 0.0;
+  double _relativeAltitudeLoss = 0.0;
   double _traveledDistance = 0.0;
   int _stepCount = 0;
   double _x = 0.0;
@@ -36,6 +39,15 @@ class Logger {
     this._accuracy = accuracy;
   }
 
+  setAltitude(double altitude) {
+    this._altitude = altitude;
+  }
+
+  setRelativeAltitudes(double relativeAltitudeGain, double relativeAltitudeLoss) {
+    this._relativeAltitudeGain = relativeAltitudeGain;
+    this._relativeAltitudeLoss = relativeAltitudeLoss;
+  }
+
   setTraveledDistance(double traveledDistance) {
     this._traveledDistance = traveledDistance;
   }
@@ -51,7 +63,7 @@ class Logger {
   }
 
   addEntry() {
-    _entries.add("${DateTime.now().toString()},$_x,$_y,$_z,$_latitude,$_longitude,$_accuracy,$_traveledDistance,$_stepCount");
+    _entries.add("${DateTime.now().toString()},$_x,$_y,$_z,$_latitude,$_longitude,$_altitude,$_relativeAltitudeGain,$_relativeAltitudeLoss,$_accuracy,$_traveledDistance,$_stepCount");
   }
 
   clearEntries() {

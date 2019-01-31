@@ -35,6 +35,8 @@ class _MyHomePageState extends State<MyHomePage> {
   bool isLogging;
 
   double accuracy = 9999.0;
+  double relativeAltitudeGain = 0.0;
+  double relativeAltitudeLoss = 0.0;
   double traveledDistance = 0.0;
 
   int stepCountStartAndroid = 0;
@@ -45,8 +47,8 @@ class _MyHomePageState extends State<MyHomePage> {
   double y = 0.0;
   double z = 0.0;
 
-  StreamSubscription<AccuracyEvent> accuracyStreamSubscription;
-  StreamSubscription<double> traveledDistanceStreamSubscription;
+  StreamSubscription<PositionEvent> accuracyStreamSubscription;
+  StreamSubscription<DistanceEvent> traveledDistanceStreamSubscription;
   StreamSubscription<MotionEvent> motionStreamSubscription;
   StreamSubscription<int> stepCounterStreamSubscription;
 
@@ -71,12 +73,17 @@ class _MyHomePageState extends State<MyHomePage> {
         buttonColor = Colors.red;
         isLogging = true;
         traveledDistance = 0.0;
+        relativeAltitudeGain = 0.0;
+        relativeAltitudeLoss = 0.0;
         stepCountStartAndroid = 0;
         stepCountStartSetAndroid = false;
         stepCount = 0;
-        traveledDistanceStreamSubscription = Location().getTraveledDistanceStream().listen((double traveledDistance) {
-          this.traveledDistance = traveledDistance;
-          Logger().setTraveledDistance(traveledDistance);    
+        traveledDistanceStreamSubscription = Location().getTraveledDistanceStream().listen((DistanceEvent distanceEvent) {
+          this.traveledDistance = distanceEvent.traveledDistance;
+          this.relativeAltitudeGain = distanceEvent.relativeAltitudeGain;
+          this.relativeAltitudeLoss = distanceEvent.relativeAltitudeLoss;
+          Logger().setTraveledDistance(traveledDistance);
+          Logger().setRelativeAltitudes(relativeAltitudeGain, relativeAltitudeLoss);
         });
         stepCounterStreamSubscription = Pedometer().stepCountStream.listen((int stepCount){
           if (!stepCountStartSetAndroid && Platform.isAndroid) {
@@ -98,12 +105,13 @@ class _MyHomePageState extends State<MyHomePage> {
 
       toggleLogging();
 
-      accuracyStreamSubscription = Location().getAccuracyStream().listen((AccuracyEvent accuracyEvent) {
+      accuracyStreamSubscription = Location().getAccuracyStream().listen((PositionEvent positionEvent) {
         setState(() {
-          this.accuracy = accuracyEvent.accuracy;
-          Logger().setAccuracy(accuracyEvent.accuracy);
-          Logger().setLatitudeLongitude(accuracyEvent.latitude, accuracyEvent.longitude);
+          this.accuracy = positionEvent.accuracy;
         });
+        Logger().setAccuracy(positionEvent.accuracy);
+        Logger().setLatitudeLongitude(positionEvent.latitude, positionEvent.longitude);
+        Logger().setAltitude(positionEvent.altitude);
       });
 
       motionStreamSubscription = Motion().getMotionStream().listen((MotionEvent motionEvent) {
@@ -111,11 +119,11 @@ class _MyHomePageState extends State<MyHomePage> {
           this.x = motionEvent.x;
           this.y = motionEvent.y;
           this.z = motionEvent.z;
-          Logger().setMotionData(x, y, z);
-          if (isLogging) {
-            Logger().addEntry();
-          }
         });
+        Logger().setMotionData(x, y, z);
+        if (isLogging) {
+          Logger().addEntry();
+        }
       });
     }
 
@@ -137,8 +145,10 @@ class _MyHomePageState extends State<MyHomePage> {
                   Text("Location Sensor", style: TextStyle(fontSize: 18)),
                   Text("(GPS)", style: TextStyle(fontSize: 12)),
                   Divider(height: 20.0),
-                  Text("Accuracy: ${accuracy.toStringAsFixed(2)}"),
-                  Text("Traveled Distance: ${traveledDistance.toStringAsFixed(2)}")
+                  Text("Accuracy: ${accuracy.toStringAsFixed(2)} m"),
+                  Text("Traveled Distance: ${traveledDistance.toStringAsFixed(2)} m"),
+                  Text("Rel. Altitude Gain: ${relativeAltitudeGain.toStringAsFixed(1)} m"),
+                  Text("Rel. Altitude Loss: ${relativeAltitudeLoss.toStringAsFixed(1)} m")
                 ],
               )
             )
