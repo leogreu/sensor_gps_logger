@@ -23,7 +23,7 @@ class Location {
   StreamController<DistanceEvent> _traveledDistanceStreamController;
 
   void _initiatePositionStream() {
-    const LocationOptions locationOptions = LocationOptions(accuracy: LocationAccuracy.best, distanceFilter: 0);
+    const LocationOptions locationOptions = LocationOptions(accuracy: LocationAccuracy.best, distanceFilter: 5);
     final Stream<Position> positionStream = Geolocator().getPositionStream(locationOptions);
     _positionStreamSubscription = positionStream.listen((Position position) {
       if (_accuracyStreamController != null && _accuracyStreamController.hasListener) {
@@ -34,7 +34,7 @@ class Location {
       }
 
       if (_traveledDistanceStreamController != null && _traveledDistanceStreamController.hasListener) {
-        if (position.accuracy <= 100.0) {
+        if (position.accuracy <= 10.0) {
           _updateRelativeAltitudes(position.altitude);
           _updateTraveledDistance(position.latitude, position.longitude);
         }
