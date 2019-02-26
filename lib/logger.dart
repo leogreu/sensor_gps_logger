@@ -105,9 +105,9 @@ class Logger {
     Uri uri = Uri.parse("https://imidist.uber.space/logs/saveLog/");
     http.MultipartRequest request = new http.MultipartRequest("POST", uri);
     if (notes.isNotEmpty) {
-      request.fields['notes'] = "$platform, $device, $notes, accFilter: $_accuracyFilter, distFilter: $_distanceFilter";
+      request.fields['notes'] = "$platform, $device, $notes, accFilter$_accuracyFilter, distFilter$_distanceFilter";
     } else {
-      request.fields['notes'] = "$platform, $device, accFilter: $_accuracyFilter, distFilter: $_distanceFilter";
+      request.fields['notes'] = "$platform, $device, accFilter$_accuracyFilter, distFilter$_distanceFilter";
     }
     request.files.add(new http.MultipartFile.fromString("csv", _csvHeader + csvContent));
 

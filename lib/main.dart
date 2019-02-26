@@ -345,17 +345,17 @@ class _StepperState extends State<Stepper> {
         Text("${widget._name}:"),
         ButtonTheme(
           minWidth: 28.0,
-          height: 28.0,
+          height: 26.0,
           child: FlatButton(
             onPressed: _decrement,
             child: Text("-", style: TextStyle(color: Colors.blue)),
             materialTapTargetSize: MaterialTapTargetSize.shrinkWrap
           )
         ),
-        Text("${_counter}m"),
+        Text("$_counter m"),
         ButtonTheme(
           minWidth: 28.0,
-          height: 28.0,
+          height: 26.0,
           child: FlatButton(
             onPressed: _increment,
             child: Text("+", style: TextStyle(color: Colors.blue)),
