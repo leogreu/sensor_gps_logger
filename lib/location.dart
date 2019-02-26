@@ -17,13 +17,25 @@ class Location {
   double _lastLatitude;
   double _lastLongitude;
   double _lastAltitude;
+
+  int accuracyFilter;
+  int distanceFilter;
+
   List<double> _lastAltitudes = [];
 
   StreamController<PositionEvent> _accuracyStreamController;
   StreamController<DistanceEvent> _traveledDistanceStreamController;
 
+  void setAccuracyFilter(int accuracy) {
+    accuracyFilter = accuracy;
+  }
+
+  void setDistanceFilter(int distance) {
+    distanceFilter = distance;
+  }
+
   void _initiatePositionStream() {
-    const LocationOptions locationOptions = LocationOptions(accuracy: LocationAccuracy.best, distanceFilter: 5);
+    LocationOptions locationOptions = LocationOptions(accuracy: LocationAccuracy.best, distanceFilter: distanceFilter);
     final Stream<Position> positionStream = Geolocator().getPositionStream(locationOptions);
     _positionStreamSubscription = positionStream.listen((Position position) {
       if (_accuracyStreamController != null && _accuracyStreamController.hasListener) {
@@ -34,7 +46,7 @@ class Location {
       }
 
       if (_traveledDistanceStreamController != null && _traveledDistanceStreamController.hasListener) {
-        if (position.accuracy <= 10.0) {
+        if (position.accuracy <= accuracyFilter) {
           _updateRelativeAltitudes(position.altitude);
           _updateTraveledDistance(position.latitude, position.longitude);
         }
@@ -58,6 +70,11 @@ class Location {
       _lastLatitude = position.latitude;
       _lastLongitude = position.longitude;
     });
+  }
+
+  cancelPositionStream() {
+    _positionStreamSubscription.cancel();
+    _positionStreamSubscription = null;
   }
 
   _updateTraveledDistance(currentLatitude, currentLongitude) async {

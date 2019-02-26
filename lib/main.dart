@@ -32,6 +32,8 @@ class _MyHomePageState extends State<MyHomePage> {
   Icon buttonIcon;
   String buttonText;
   Color buttonColor;
+
+  bool isLocating;
   bool isLogging;
 
   double accuracy = 9999.0;
@@ -47,6 +49,9 @@ class _MyHomePageState extends State<MyHomePage> {
   double y = 0.0;
   double z = 0.0;
 
+  int accuracyFilter;
+  int distanceFilter;
+
   StreamSubscription<PositionEvent> accuracyStreamSubscription;
   StreamSubscription<DistanceEvent> traveledDistanceStreamSubscription;
   StreamSubscription<MotionEvent> motionStreamSubscription;
@@ -54,12 +59,21 @@ class _MyHomePageState extends State<MyHomePage> {
 
   toggleLogging() {
     setState(() {
-      if (isLogging == null || isLogging) {
-        buttonIcon = Icon(Icons.play_arrow);
-        buttonText = "Start Logging";
+      if (isLocating == null || isLogging) {
+        buttonIcon = Icon(Icons.location_on);
+        buttonText = "Start Locating";
         buttonColor = Colors.blue;
+        isLocating = false;
         isLogging = false;
-        if (traveledDistanceStreamSubscription != null) {
+        accuracy = 9999.0;
+        traveledDistance = 0.0;
+        relativeAltitudeGain = 0.0;
+        relativeAltitudeLoss = 0.0;
+        stepCount = 0;
+        if (traveledDistanceStreamSubscription != null || accuracyStreamSubscription != null) {
+          Location().cancelPositionStream();
+          accuracyStreamSubscription.cancel();
+          accuracyStreamSubscription = null;
           traveledDistanceStreamSubscription.cancel();
           traveledDistanceStreamSubscription = null;
           stepCounterStreamSubscription.cancel();
@@ -67,17 +81,31 @@ class _MyHomePageState extends State<MyHomePage> {
           motionStreamSubscription.pause();
           askToSendLog();
         }
-      } else {
+      } else if (!isLocating) {
+        Location().setAccuracyFilter(accuracyFilter);
+        Location().setDistanceFilter(distanceFilter);
+        Logger().setAccuracyFilter(accuracyFilter);
+        Logger().setDistanceFilter(distanceFilter);
+        accuracyStreamSubscription = Location().getAccuracyStream().listen((PositionEvent positionEvent) {
+          setState(() {
+            this.accuracy = positionEvent.accuracy;
+          });
+          Logger().setAccuracy(positionEvent.accuracy);
+          Logger().setLatitudeLongitude(positionEvent.latitude, positionEvent.longitude);
+          Logger().setAltitude(positionEvent.altitude);
+        });
+        isLocating = true;
+        buttonIcon = Icon(Icons.play_arrow);
+        buttonText = "Start Logging";
+        buttonColor = Colors.green;
+        isLogging = false;
+      } else if (!isLogging && isLocating) {
         buttonIcon = Icon(Icons.stop);
         buttonText = "Stop Logging";
         buttonColor = Colors.red;
         isLogging = true;
-        traveledDistance = 0.0;
-        relativeAltitudeGain = 0.0;
-        relativeAltitudeLoss = 0.0;
         stepCountStartAndroid = 0;
         stepCountStartSetAndroid = false;
-        stepCount = 0;
         traveledDistanceStreamSubscription = Location().getTraveledDistanceStream().listen((DistanceEvent distanceEvent) {
           this.traveledDistance = distanceEvent.traveledDistance;
           this.relativeAltitudeGain = distanceEvent.relativeAltitudeGain;
@@ -101,18 +129,7 @@ class _MyHomePageState extends State<MyHomePage> {
     void initState() {
       super.initState();
 
-      Logger().setPlatform(Platform.isAndroid ? "Android" : "iOS");
-
       toggleLogging();
-
-      accuracyStreamSubscription = Location().getAccuracyStream().listen((PositionEvent positionEvent) {
-        setState(() {
-          this.accuracy = positionEvent.accuracy;
-        });
-        Logger().setAccuracy(positionEvent.accuracy);
-        Logger().setLatitudeLongitude(positionEvent.latitude, positionEvent.longitude);
-        Logger().setAltitude(positionEvent.altitude);
-      });
 
       motionStreamSubscription = Motion().getMotionStream().listen((MotionEvent motionEvent) {
         setState(() {
@@ -144,6 +161,9 @@ class _MyHomePageState extends State<MyHomePage> {
                 children: <Widget>[
                   Text("Location Sensor", style: TextStyle(fontSize: 18)),
                   Text("(GPS)", style: TextStyle(fontSize: 12)),
+                  Divider(height: 20.0),
+                  Stepper(10, "Accuracy filter", accuracyFilterCallback),
+                  Stepper(5, "Distance filter", distanceFilterCallback),
                   Divider(height: 20.0),
                   Text("Accuracy: ${accuracy.toStringAsFixed(2)} m"),
                   Text("Traveled Distance: ${traveledDistance.toStringAsFixed(1)} m"),
@@ -258,6 +278,14 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+  accuracyFilterCallback(int accuracy) {
+    accuracyFilter = accuracy;
+  }
+
+  distanceFilterCallback(int distance) {
+    distanceFilter = distance;
+  }
+
   @override
     void dispose() {
       if (accuracyStreamSubscription != null) {
@@ -282,4 +310,75 @@ class _MyHomePageState extends State<MyHomePage> {
 
       super.dispose();
     }
+}
+
+class Stepper extends StatefulWidget {
+  final Function(int) _callback;
+  final String _name;
+  final int _startCounter;
+
+  Stepper(this._startCounter, this._name, this._callback);
+
+  @override
+  _StepperState createState() => _StepperState();
+}
+
+class _StepperState extends State<Stepper> {
+  int _counter = 0;
+
+  @override
+  void initState() {
+    super.initState();
+
+    setState(() {
+      _counter = widget._startCounter;
+    });
+
+    widget._callback(_counter);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        Text("${widget._name}:"),
+        ButtonTheme(
+          minWidth: 28.0,
+          height: 28.0,
+          child: FlatButton(
+            onPressed: _decrement,
+            child: Text("-", style: TextStyle(color: Colors.blue)),
+            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap
+          )
+        ),
+        Text("${_counter}m"),
+        ButtonTheme(
+          minWidth: 28.0,
+          height: 28.0,
+          child: FlatButton(
+            onPressed: _increment,
+            child: Text("+", style: TextStyle(color: Colors.blue)),
+            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap
+          )
+        )
+      ],
+    );
+  }
+
+  void _increment() {
+    setState(() {
+      _counter++;
+    });
+    widget._callback(_counter);
+  }
+
+  void _decrement() {
+    if (_counter > 0) {
+      setState(() {
+        _counter--;
+      });
+      widget._callback(_counter);
+    }
+  }
 }

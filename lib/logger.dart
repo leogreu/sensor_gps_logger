@@ -1,4 +1,6 @@
 import 'package:http/http.dart' as http;
+import 'package:device_info/device_info.dart';
+import 'dart:io' show Platform;
 
 class Logger {
   static final Logger _singleton = new Logger._internal();
@@ -12,8 +14,6 @@ class Logger {
   static const String _csvHeader = "timestamp,x,y,z,latitude,longitude,altitude,accuracy,traveled_distance,rel_alt_gain,rel_alt_loss,step_count\n";
   List _entries = [];
 
-  String platform = "";
-
   double _latitude = 0.0;
   double _longitude = 0.0;
   double _accuracy = 9999.0;
@@ -26,9 +26,8 @@ class Logger {
   double _y = 0.0;
   double _z = 0.0;
 
-  setPlatform(String platform) {
-    this.platform = platform;
-  }
+  int _accuracyFilter;
+  int _distanceFilter;
 
   setLatitudeLongitude(double latitude, double longitude) {
     this._latitude = latitude;
@@ -62,6 +61,14 @@ class Logger {
     this._z = z;
   }
 
+  setAccuracyFilter(int accuracy) {
+    _accuracyFilter = accuracy;
+  }
+
+  setDistanceFilter(int distance) {
+    _distanceFilter = distance;
+  }
+
   addEntry() {
     _entries.add("${DateTime.now().toString()},$_x,$_y,$_z,$_latitude,$_longitude,$_altitude,$_relativeAltitudeGain,$_relativeAltitudeLoss,$_accuracy,$_traveledDistance,$_stepCount");
   }
@@ -79,14 +86,28 @@ class Logger {
   }
 
   Future<bool> shareLog([String notes = ""]) async {
+    String platform;
+    String device;
+    if (Platform.isAndroid) {
+      platform = "Android";
+      AndroidDeviceInfo androidDeviceInfo = await DeviceInfoPlugin().androidInfo;
+      device = androidDeviceInfo.model;
+    } else if (Platform.isIOS) {
+      platform = "iOS";
+      IosDeviceInfo iosDeviceInfo = await DeviceInfoPlugin().iosInfo;
+      device = iosDeviceInfo.utsname.machine;
+    } else {
+      device = "device unknown";
+    }
+
     String csvContent = _entries.join("\n");
     
     Uri uri = Uri.parse("https://imidist.uber.space/logs/saveLog/");
     http.MultipartRequest request = new http.MultipartRequest("POST", uri);
     if (notes.isNotEmpty) {
-      request.fields['notes'] = platform + ", " + notes;
+      request.fields['notes'] = "$platform, $device, $notes, accFilter: $_accuracyFilter, distFilter: $_distanceFilter";
     } else {
-      request.fields['notes'] = platform;
+      request.fields['notes'] = "$platform, $device, accFilter: $_accuracyFilter, distFilter: $_distanceFilter";
     }
     request.files.add(new http.MultipartFile.fromString("csv", _csvHeader + csvContent));
 
