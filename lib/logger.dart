@@ -70,7 +70,7 @@ class Logger {
   }
 
   addEntry() {
-    _entries.add("${DateTime.now().toString()},$_x,$_y,$_z,$_latitude,$_longitude,$_altitude,$_relativeAltitudeGain,$_relativeAltitudeLoss,$_accuracy,$_traveledDistance,$_stepCount");
+    _entries.add("${DateTime.now().toString()},$_x,$_y,$_z,$_latitude,$_longitude,$_altitude,$_accuracy,$_traveledDistance,$_relativeAltitudeGain,$_relativeAltitudeLoss,$_stepCount");
   }
 
   clearEntries() {
