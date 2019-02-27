@@ -67,8 +67,10 @@ class Location {
         _positionStreamSubscription = null;
       }
 
-      _lastLatitude = position.latitude;
-      _lastLongitude = position.longitude;
+      if (position.accuracy <= accuracyFilter || _traveledDistanceStreamController == null) {
+        _lastLatitude = position.latitude;
+        _lastLongitude = position.longitude;
+      }
     });
   }
 
@@ -87,7 +89,7 @@ class Location {
   }
 
   _updateRelativeAltitudes(currentAltitude) {
-    final int _smoothingThreshold = 3;
+    final int _smoothingThreshold = 5;
 
     _lastAltitudes.add(currentAltitude);
 
